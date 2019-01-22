@@ -4,7 +4,7 @@
   :description "Replace structure slot reader with generic function."
   :author "Panji Kusuma <epanji@gmail.com>"
   :license  "Public Domain"
-  :version "0.0.1"
+  :version "0.0.2"
   :serial t
   :components ((:file "package")
                (:file "generic-structure-reader"))
@@ -17,5 +17,4 @@
 (asdf:defsystem #:generic-structure-reader/tests
   :defsystem-depends-on (:fiveam)
   :depends-on (:generic-structure-reader)
-  :components ((:file "generic-structure-reader-tests"))
-  :in-order-to ((test-op (load-op #:generic-structure-reader/tests))))
+  :components ((:file "generic-structure-reader-tests")))
