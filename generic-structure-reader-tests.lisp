@@ -10,7 +10,8 @@
   (defstruct bar b c)
   (defstruct baz z)
   `(let ((foo (make-foo :a 1 :b 2))
-         (bar (make-bar :b 11 :c 22)))
+         (bar (make-bar :b 11 :c 22))
+         (baz (make-baz :z 111)))
      (declare (ignore ,@ignored))
      (handler-bind ((warning (lambda (c)
                                (declare (ignore c))
@@ -47,19 +48,29 @@
     (is (= (foo-b foo) 2))
     (is (= (bar-c bar) 22))))
 
-(test still-able-to-change-values
+(test able-to-change-values
   (with-dummy-data ()
     (is (setf (foo-a foo) 1))
     (is (setf (foo-b foo) 2))
     (is (setf (bar-b bar) 3))
     (is (setf (bar-c bar) 4))))
 
+(test able-to-use-with-slots-and-accessors
+  (with-dummy-data ()
+    (with-slots (a b) foo
+      (is (= a 1))
+      (is (= b 2)))
+    (with-accessors ((b bar-b) (c bar-c)) bar
+      (is (= b 11))
+      (is (= c 22)))))
+
 (test mismatch-between-structure-and-reader
   (with-dummy-data (foo bar)
-    (let ((baz (make-baz :z 3)))
-      ;; Expecting error because slot z does not exists in bar.
-      (ignore-errors (define-generic-structure-reader baz-z (bar)))
-      (is (typep (structure-reader-function 'baz-z) 'function))
-      (define-generic-structure-reader baz-z (baz))
-      (is (typep (function baz-z) 'standard-generic-function))
-      (is (= (baz-z baz) 3)))))
+    ;; Expecting error because slot z does not exists in bar.
+    (handler-case (define-generic-structure-reader baz-z (bar))
+      (error () (is (and)))
+      (:no-error () (is (or))))
+    (define-generic-structure-reader baz-z (baz))
+    (is (typep (function baz-z) 'standard-generic-function))
+    (is (typep (structure-reader-function 'baz-z) 'function))
+    (is (= (baz-z baz) 111))))
