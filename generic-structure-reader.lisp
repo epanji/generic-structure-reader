@@ -11,7 +11,8 @@
                            (t nil))
                          nil)
     (type-error (c) (type-error-expected-type c))
-    (undefined-function ())))
+    (undefined-function ())
+    (simple-condition ())))
 
 (define-condition replace-slot-reader-error (error)
   ((function :initarg :function :reader replace-slot-reader-error-function)
