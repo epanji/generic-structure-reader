@@ -11,8 +11,8 @@
                            (t nil))
                          nil)
     (type-error (c) (type-error-expected-type c))
-    (undefined-function ())
-    (simple-condition ())))
+    (undefined-function () nil)
+    (simple-condition () nil)))
 
 (define-condition replace-slot-reader-error (error)
   ((function :initarg :function :reader replace-slot-reader-error-function)
@@ -20,7 +20,7 @@
   (:report (lambda (condition stream)
              (let ((function-name (replace-slot-reader-error-function condition))
                    (structure-name (replace-slot-reader-error-structure condition)))
-               (format stream "Invalid ~(~a~) ~a for ~(~a~) ~a."
+               (format stream "Invalid ~(~A~) ~A for ~(~A~) ~A."
                        (type-of (symbol-function function-name)) function-name
                        (type-of (find-class structure-name nil)) structure-name)))))
 
@@ -46,3 +46,21 @@
            (funcall (structure-reader-function ',function-name) instance))
          ,@body)
       (error 'replace-slot-reader-error :function function-name :structure structure-name)))
+
+(defun revoke-generic-structure-reader (symbol)
+  "Revoke generic function definition from SYMBOL and restore the original function.
+Only SYMBOL registered in `*structure-reader-functions*' will be affected by this.
+As a consideration, generic function might be unrevertable after revoked."
+  (multiple-value-bind (origin existp) (structure-reader-function symbol)
+    (when existp
+      (let ((generic (symbol-function symbol)))
+        (setf (fdefinition symbol) origin)
+        (remhash symbol *structure-reader-functions*)
+        (values origin generic)))))
+
+(defun revoke-generic-structure-readers (package)
+  "Revoke generic functions by calling `revoke-generic-structure-reader' multiple times.
+Only specified PACKAGE in `*structure-reader-functions*' will be affected by this."
+  (loop for name being the hash-key of *structure-reader-functions*
+        when (eql (symbol-package name) (find-package package))
+          collect (multiple-value-list (revoke-generic-structure-reader name))))
