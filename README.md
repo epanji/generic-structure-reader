@@ -11,6 +11,7 @@ Author: _Panji Kusuma <epanji@gmail.com>_
 Notes:
 - _You should only use this system if an error occurred because of unexpected argument in `structure-slot-reader'._
 - _If all or majority readers on structure need to be replaced as generic function, maybe you should consider using class instead._
+- _It is tested and only known run on SBCL._
 
 ## Usage
 
