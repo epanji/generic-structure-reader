@@ -90,6 +90,7 @@
   (defstruct quux a)
   (define-generic-structure-reader quux-a (quux)))
 (test revoke-generic-structure-reader
-  (revoke-generic-structure-reader 'quux-a)
+  (with-suppress-warning
+    (revoke-generic-structure-reader 'quux-a))
   (is (typep (function quux-a) 'function))
   (is-false (nth-value 1 (structure-reader-function 'quux-a))))
