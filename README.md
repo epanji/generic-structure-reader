@@ -1,26 +1,33 @@
 # Generic Structure Reader
-### _Panji Kusuma <epanji@gmail.com>_
 
-This package can be used to replace structure slot reader with generic function. When you expected to get structure instance from function, sometimes what you got only nil as the result. Imagine when there are hundred or thousand reader being used in project. Instead replacing condition all over the files, just create one method will save the time.
+This system able to replace structure slot reader with generic function.
 
-You should only use this when there is reader from structure that lead to an error. If all or majority readers on structure need to be replaced as generic function, maybe you should consider using class instead.
+In case a function being used as argument in `structure-slot-reader' and unexpectedly returning nil instead of structure instance, it will signal an error due to unable to handle nil.
+
+Imagine a case when there are hundred or thousand reader being used, and condition need to be added in the arguments, instead adding condition all over the files, creating one method will save the time.
+
+Author: _Panji Kusuma <epanji@gmail.com>_
+
+Notes:
+- _You should only use this system if an error occurred because of unexpected argument in `structure-slot-reader'._
+- _If all or majority readers on structure need to be replaced as generic function, maybe you should consider using class instead._
 
 ## Usage
 
 ``` common-lisp
 (in-package :cl-user)
-(use-package :generic-structure-reader)
+(add-package-local-nickname "GSR" :generic-structure-reader)
 
 (defstruct foo a b)
 
-(define-generic-structure-reader foo-a (foo)
+(gsr:define-generic-structure-reader foo-a (foo)
   (:method ((object null)) 'expected-value))
 ```
 
 ## Tests
 
 ```
-CL-USER> (asdf:test-system :generic-structure-reader)
+CL-USER> (asdf:test-system "generic-structure-reader")
 
 Running test suite GENERIC-STRUCTURE-READER-SUITE
  Running test REPLACE-STRUCTURE-READER-WITH-GENERIC-FUNCTION ....
@@ -29,8 +36,9 @@ Running test suite GENERIC-STRUCTURE-READER-SUITE
  Running test ABLE-TO-CHANGE-VALUES ....
  Running test ABLE-TO-USE-WITH-SLOTS-AND-ACCESSORS ....
  Running test MISMATCH-BETWEEN-STRUCTURE-AND-READER ....
- Did 22 checks.
-    Pass: 22 (100%)
+ Running test REVOKE-GENERIC-STRUCTURE-READER ..
+ Did 24 checks.
+    Pass: 24 (100%)
     Skip: 0 ( 0%)
     Fail: 0 ( 0%)
 
