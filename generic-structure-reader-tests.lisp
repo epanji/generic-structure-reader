@@ -1,7 +1,7 @@
 ;;;; generic-structure-reader-tests.lisp
 
 (defpackage #:generic-structure-reader/tests
-  (:use #:common-lisp #:generic-structure-reader #:fiveam)
+  (:use #:common-lisp #:fiveam #:generic-structure-reader)
   (:export #:run-suite-tests))
 (in-package #:generic-structure-reader/tests)
 
@@ -82,3 +82,14 @@
     (is (typep (function baz-z) 'standard-generic-function))
     (is (typep (structure-reader-function 'baz-z) 'function))
     (is (= (baz-z baz) 111))))
+
+;;; It failed when evaluate at :load-toplevel
+;;; Don't even bother to test #'revoke-generic-structure-readers
+;;; It is work as expected. But, it is not recommended to be used
+(eval-when (:compile-toplevel :execute)
+  (defstruct quux a)
+  (define-generic-structure-reader quux-a (quux)))
+(test revoke-generic-structure-reader
+  (revoke-generic-structure-reader 'quux-a)
+  (is (typep (function quux-a) 'function))
+  (is-false (nth-value 1 (structure-reader-function 'quux-a))))
