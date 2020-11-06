@@ -2,13 +2,17 @@
 
 (in-package #:generic-structure-reader)
 
+;;; Supported Common Lisp Implementation.
+#-(or sbcl ecl abcl)
+(warn "GENERIC-STRUCTURE-READER: This system might be un-supported for ~S." (lisp-implementation-type))
+
 (defvar *structure-reader-functions* (make-hash-table))
 
 (defun slot-reader-expected-type (function)
   (handler-case (funcall (typecase function
                            (function function)
                            (symbol (symbol-function function))
-                           (t nil))
+                           (t nil #|undefined-function|#))
                          nil)
     (type-error (c) (type-error-expected-type c))
     (undefined-function () nil)
@@ -29,9 +33,9 @@
 
 (defmacro define-generic-structure-reader (function-name (structure-name) &body body)
   ;; Ensure type of FUNCTION-NAME and STRUCTURE-NAME related.
-  (when (and (eql (type-of (symbol-function function-name)) (type-of (function funcall)))
+  (when (and (eql (type-of (symbol-function function-name)) #-ecl 'function #+ecl 'compiled-function)
              (eql (type-of (find-class structure-name nil)) 'structure-class)
-             (eql (slot-reader-expected-type function-name) structure-name))
+             (eql (slot-reader-expected-type function-name) #-abcl structure-name #+abcl 'structure-object))
     ;; Register original function.
     (setf (structure-reader-function function-name)
           (symbol-function function-name))
@@ -40,7 +44,7 @@
   ;; Define or redefine generic function.
   ;; Since slot-reader-expected-type did not work for method,
   ;; STRUCTURE-NAME is needed for redefine generic function.
-  (if (eql (slot-reader-expected-type (structure-reader-function function-name)) structure-name)
+  (if (eql (slot-reader-expected-type (structure-reader-function function-name)) #-abcl structure-name #+abcl 'structure-object)
       `(defgeneric ,function-name (,structure-name)
          (:method ((instance ,structure-name))
            (funcall (structure-reader-function ',function-name) instance))
