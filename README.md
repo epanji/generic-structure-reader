@@ -2,7 +2,7 @@
 
 This system able to replace structure slot reader with generic function.
 
-In case a function being used as argument in `structure-slot-reader' and unexpectedly returning nil instead of structure instance, it will signal an error due to unable to handle nil.
+In case a function being used as argument in `structure-slot-reader' and unexpectedly returning NIL instead of structure instance, it will signal an error due to unable to handle NIL.
 
 Imagine a case when there are hundred or thousand reader being used, and condition need to be added in the arguments, instead adding condition all over the files, creating one method will save the time.
 
@@ -11,7 +11,6 @@ Author: _Panji Kusuma <epanji@gmail.com>_
 Notes:
 - _You should only use this system if an error occurred because of unexpected argument in `structure-slot-reader'._
 - _If all or majority readers on structure need to be replaced as generic function, maybe you should consider using class instead._
-- _It is tested and only known run on SBCL._
 
 ## Usage
 
