@@ -33,7 +33,7 @@
 
 (defmacro define-generic-structure-reader (function-name (structure-name) &body body)
   ;; Ensure type of FUNCTION-NAME and STRUCTURE-NAME related.
-  (when (and (eql (type-of (symbol-function function-name)) #-ecl 'function #+ecl 'compiled-function)
+  (when (and (eql (type-of (symbol-function function-name)) 'compiled-function) ; Exclude generic-function
              (eql (type-of (find-class structure-name nil)) 'structure-class)
              (eql (slot-reader-expected-type function-name) #-abcl structure-name #+abcl 'structure-object))
     ;; Register original function.
