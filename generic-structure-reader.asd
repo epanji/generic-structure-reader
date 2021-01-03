@@ -4,7 +4,7 @@
   :description "Replace structure slot reader with generic function."
   :author "Panji Kusuma <epanji@gmail.com>"
   :license  "Public Domain"
-  :version "0.0.5"
+  :version "0.0.6"
   :serial t
   :components ((:file "package")
                (:file "generic-structure-reader"))
